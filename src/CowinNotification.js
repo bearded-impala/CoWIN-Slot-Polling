@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Form, Grid, Header, Segment } from 'semantic-ui-react';
+import { Button, Card, Form, Grid, Header } from 'semantic-ui-react';
 import Table from './components/Table';
+import { formatDate } from './utils/util';
 let sessionTimer;
 
 function CowinNotification() {
@@ -10,11 +11,12 @@ function CowinNotification() {
   const [selectedState, setSelectedState] = useState('21');
   const [districts, setDistricts] = useState([]);
   const [selectedDistrict, setSelectedDistrict] = useState('363');
-  const [selectedDate, setSelectedDate] = useState('2021-05-06');
+  const [selectedDate, setSelectedDate] = useState('2021-05-07');
   const [loading, setLoading] = useState(false);
   const [pincode, setPincode] = useState('411017');
-  const [minAge, setMinAge] = useState('18');
+  const [minAge, setMinAge] = useState(18);
   const [type, setType] = useState('PIN');
+  const [vaccine, setVaccine] = useState('COVISHIELD');
 
   useEffect(() => {
     if (!("Notification" in window)) {
@@ -95,16 +97,18 @@ function CowinNotification() {
     setMinAge(value)
   };
 
-  setMinAge
+  const handleVaccineChange = (e, { name, value }) => {
+    setVaccine(value);
+  }
 
   var data = [];
   const isSessionAvailable = () => {
     if (type === "PIN") {
-      axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pincode}&date=${selectedDate}`)
+      axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pincode}&date=${formatDate(selectedDate)}`)
       .then((response) => {
         data = [];
         response.data.sessions.forEach(function (arrayItem) {
-          if (arrayItem.min_age_limit === minAge && arrayItem.vaccine === "COVISHIELD") {
+          if (arrayItem.min_age_limit === minAge && arrayItem.vaccine === vaccine) {
             data.push({
               "pincode": arrayItem.pincode,
               "address": arrayItem.address,
@@ -124,11 +128,11 @@ function CowinNotification() {
       })   
     }
     if (type === "District") {
-      axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id=${selectedDistrict}&date=${selectedDate}`)
+      axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id=${selectedDistrict}&date=${formatDate(selectedDate)}`)
       .then((response) => {
         data = [];
         response.data.sessions.forEach(function (arrayItem) {
-          if (arrayItem.min_age_limit === minAge && arrayItem.vaccine === "COVISHIELD") {
+          if (arrayItem.min_age_limit === minAge && arrayItem.vaccine === vaccine) {
             data.push({
               "pincode": arrayItem.pincode,
               "address": arrayItem.address,
@@ -165,13 +169,12 @@ const showNotification = () => {
   ];
 
   return (
-    <Segment>
-      <Header size="huge">Co-WIN Slot Polling</Header>
-      <Grid columns={2} divided>
-      <Grid.Row>
-      <Grid.Column>
+<>
+  <Header block attached="top" size="huge">Co-WIN Slot Polling</Header>
+    <Card fluid>
+      <Card.Content>
       <Form>
-        <Form.Group>
+      <Form.Group widths="equal">
         <Form.Select
             label="State"
             name="selectedState"
@@ -208,13 +211,15 @@ const showNotification = () => {
              id="pincode"
              value={pincode}
              onChange={handlePinChange}
-                />
+              />
+          </Form.Group>
+          <Form.Group widths="equal">
             <Form.Select
               name="minAge"
               label="MinAge"
               id="minAge"
-              options={[{ key: "18", value: "18", text: "18" },
-                    { key: "45", value: "45", text: "45" }]}
+              options={[{ key: 18, value: 18, text: 18 },
+                    { key: 45, value: 45, text: 45 }]}
               onChange={handleMinAgeChange}
               value={minAge}
             />
@@ -226,10 +231,22 @@ const showNotification = () => {
                     { key: "PIN", value: "PIN", text: "PIN" }]}
               onChange={handleTypeChange}
               value={type}
+                />
+          <Form.Select
+              name="vaccine"
+              label="Vaccine"
+              id="vaccine"
+              options={[{ key: "COVISHIELD", value: "COVISHIELD", text: "COVISHIELD" },
+                    { key: "COVAXIN", value: "COVAXIN", text: "COVAXIN" }]}
+              onChange={handleVaccineChange}
+              value={vaccine}
             />
-        </Form.Group>
-        <Form.Group>
-        <Form.Button
+           </Form.Group>
+        </Form>
+        </Card.Content>
+            <Card.Content extra>
+        <div className="ui two buttons">
+          <Button
             content="Start"
             onClick={startPolling}
             loading={loading}
@@ -237,20 +254,18 @@ const showNotification = () => {
             color="green"
             fluid
           />
-          <Form.Button
+          <Button
             content="Stop"
             onClick={stopPolling}
             disabled={!sessionTimer}
             color="red"
             fluid
           />
-          </Form.Group>
-        </Form>
-        </Grid.Column>
-        </Grid.Row>
-        </Grid>
-      <Table columns={columns} data={availability} />
-    </Segment>
+                </div>
+            </Card.Content>
+            </Card>
+          <Table columns={columns} data={availability} />
+</>
   );
 }
 

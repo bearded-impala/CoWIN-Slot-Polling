@@ -51,7 +51,7 @@ const config = {
   devServer: {
     contentBase: path.join(__dirname, 'src'),
     publicPath: '/CoWIN-Slot-Polling/',
-    openPage: '/CoWIN-Slot-Polling/',
+    openPage: 'CoWIN-Slot-Polling/',
     port: 8080,
     open: true,
     https: true,
