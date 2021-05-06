@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Button, Card, Form, Grid, Header } from 'semantic-ui-react';
+import { Button, Card, Form, Header } from 'semantic-ui-react';
 import Table from './components/Table';
 import { formatDate } from './utils/util';
 let sessionTimer;
@@ -132,7 +132,6 @@ function CowinNotification() {
           setAvailability((values) => [...values, ...data ])
         }).catch((e) => {
           clearInterval(sessionTimer);
-          alert(e.message);
         })  
       }) 
     }
@@ -156,7 +155,6 @@ function CowinNotification() {
         setAvailability(data)
       }).catch((e) => {
         clearInterval(sessionTimer);
-        alert(e.message);
       })
     }
     resetTimer();
