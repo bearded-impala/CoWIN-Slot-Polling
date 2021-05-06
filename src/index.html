@@ -5,7 +5,7 @@
 <title>CoWIN Polling</title>
 <script>
   if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/service-worker.js')
+  navigator.serviceWorker.register('/CoWIN-Slot-Polling/service-worker.js',{ scope: '/' })
   .then(function(registration) {
     registration.addEventListener('updatefound', function() {
       var installingWorker = registration.installing;
