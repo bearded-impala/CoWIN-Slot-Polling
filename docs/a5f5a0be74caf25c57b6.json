@@ -1,8 +1,0 @@
-{
-    "name": "CoWIN-slot-polling-app",
-    "short_name": "cowin-slot-polling-app",
-    "start_url": "https://bearded-impala.github.io/CoWIN-Slot-Polling/",
-    "display": "standalone",
-    "background_color": "#fff",
-    "description": "A simple single page app to poll CoWIN for available appointment slots"
-  }

@@ -9,7 +9,7 @@ const config = {
   mode: 'production',
   output: {
     path: path.resolve(__dirname, 'docs'),
-    filename: '[name].js',
+    filename: '[contenthash].js',
     publicPath: '/CoWIN-Slot-Polling/',
   },
   module: {
