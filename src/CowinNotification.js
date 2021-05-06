@@ -168,8 +168,9 @@ function CowinNotification() {
           navigator.serviceWorker.ready.then(function(registration) {
             registration.showNotification(message, {
               body: 'Hurry Up',
-              vibrate: [200, 100, 200, 100, 200, 100, 200],
-              tag: 'CoWIN slot polling'
+              vibrate: [1000, 100, 200, 100, 200, 100, 1000],
+              tag: 'CoWIN slot polling',
+              renotify: true
             });
           });
         }
