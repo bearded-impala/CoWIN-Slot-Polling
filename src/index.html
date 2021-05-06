@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <link rel="shortcut icon" href="#">
 <title>CoWIN Polling</title>
 <script>
   if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('CoWIN-Slot-Polling/service-worker.js',{ scope: '/' })
+  navigator.serviceWorker.register('service-worker.js',{ scope: '/CoWIN-Slot-Polling/' })
   .then(function(registration) {
     registration.addEventListener('updatefound', function() {
       var installingWorker = registration.installing;
