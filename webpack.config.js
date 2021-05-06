@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebPackPlugin = require('html-webpack-plugin');
+const CopyPlugin = require("copy-webpack-plugin");
 
 const APP_DIR = path.resolve(__dirname, 'src');
 
@@ -46,6 +47,11 @@ const config = {
     new HtmlWebPackPlugin({
       template: `${APP_DIR}/index.html`,
       title: 'CoWIN Polling',
+    }),
+    new CopyPlugin({
+      patterns: [
+        { from: "./src/service-worker.js" },
+      ],
     }),
   ],
   devServer: {
