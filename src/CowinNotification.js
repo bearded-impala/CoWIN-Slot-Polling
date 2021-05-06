@@ -6,17 +6,23 @@ import { formatDate } from './utils/util';
 let sessionTimer;
 
 function CowinNotification() {
+  var date = new Date();
+  date.setDate(date.getDate() + 1);
+  var day = ("0" + date.getDate()).slice(-2);
+  var month = ("0" + (date.getMonth() + 1)).slice(-2);
+  var year = date.getFullYear();
   const [availability, setAvailability] = useState([]);
   const [states, setStates] = useState([]);
   const [selectedState, setSelectedState] = useState('21');
   const [districts, setDistricts] = useState([]);
   const [selectedDistrict, setSelectedDistrict] = useState('363');
-  const [selectedDate, setSelectedDate] = useState('2021-05-07');
+  const [selectedDate, setSelectedDate] = useState(`${year}-${month}-${day}`);
   const [loading, setLoading] = useState(false);
   const [pincode, setPincode] = useState('411017');
+  const [pinfilter, setPinfilter] = useState('');
   const [minAge, setMinAge] = useState(18);
-  const [type, setType] = useState('PIN');
-  const [vaccine, setVaccine] = useState('COVISHIELD');
+  const [type, setType] = useState('District');
+  const [vaccine, setVaccine] = useState('ANY');
 
   useEffect(() => {
     if (!("Notification" in window)) {
@@ -40,6 +46,7 @@ function CowinNotification() {
   }, [availability])
 
   const startPolling = () => {
+    setAvailability([]);
     resetTimer();
     setLoading(true);
   }
@@ -107,6 +114,20 @@ function CowinNotification() {
     setVaccine(value);
   }
 
+  const handlePinfilterChange = (e, { name, value }) => {
+    setPinfilter(value);
+  }
+
+  const checkVaccine = (availableVaccine) => {
+    if (availableVaccine === vaccine) {
+      return true;
+    }
+    if (vaccine === 'ANY') {
+      return true;
+    }
+    return false;
+  }
+
   var data = [];
   const isSessionAvailable = () => {
     setAvailability([]);
@@ -117,14 +138,13 @@ function CowinNotification() {
         axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pin}&date=${formatDate(selectedDate)}`)
         .then((response) => {
           response.data.sessions.forEach(function (arrayItem) {
-            if (arrayItem.min_age_limit === minAge && arrayItem.vaccine === vaccine) {
+            if (arrayItem.min_age_limit === minAge && checkVaccine(arrayItem.vaccine) && arrayItem.pincode.toString().startsWith(pinfilter)) {
               data.push({
                 "pincode": arrayItem.pincode,
                 "address": arrayItem.address,
                 "fee_type": arrayItem.fee_type,
                 "available_capacity": arrayItem.available_capacity,
-                "lat": arrayItem.lat,
-                "long": arrayItem.long
+                "vaccine": arrayItem.vaccine
               })
             }
         });
@@ -140,14 +160,13 @@ function CowinNotification() {
       .then((response) => {
         data = [];
         response.data.sessions.forEach(function (arrayItem) {
-          if (arrayItem.min_age_limit === minAge && arrayItem.vaccine === vaccine) {
+          if (arrayItem.min_age_limit === minAge && checkVaccine(arrayItem.vaccine) && arrayItem.pincode.toString().startsWith(pinfilter)) {
             data.push({
               "pincode": arrayItem.pincode,
               "address": arrayItem.address,
               "fee_type": arrayItem.fee_type,
               "available_capacity": arrayItem.available_capacity,
-              "lat": arrayItem.lat,
-              "long": arrayItem.long
+              "vaccine": arrayItem.vaccine
             })
           }
       });
@@ -179,8 +198,8 @@ function CowinNotification() {
     { Header: 'pincode', accessor: 'pincode' },
     { Header: 'address', accessor: 'address', width: 400 },
     { Header: 'available', accessor: 'available_capacity' },
-    { Header: 'lat', accessor: 'lat' },
-    { Header: 'long', accessor: 'long' },
+    { Header: 'vaccine', accessor: 'vaccine' },
+    { Header: 'fee_type', accessor: 'fee_type' },
   ];
 
   return (
@@ -199,7 +218,7 @@ function CowinNotification() {
               onChange={handleTypeChange}
               value={type}
               />
-                        <Form.Input
+         <Form.Input
             type="date"
             label="Date"
             name="date"
@@ -215,8 +234,8 @@ function CowinNotification() {
             id="selectedState"
             options={states}
             value={selectedState}
-                placeholder="Select State"
-                disabled={type === "PIN"}
+            placeholder="Select State"
+            disabled={type === "PIN"}
             onChange={handleStateChange}
             search
           />
@@ -243,10 +262,10 @@ function CowinNotification() {
           <Form.Group widths="equal">
             <Form.Select
               name="minAge"
-              label="MinAge"
+              label="Age"
               id="minAge"
-              options={[{ key: 18, value: 18, text: 18 },
-                    { key: 45, value: 45, text: 45 }]}
+              options={[{ key: 18, value: 18, text: '18-44' },
+                    { key: 45, value: 45, text: '45+' }]}
               onChange={handleMinAgeChange}
               value={minAge}
             />
@@ -254,10 +273,18 @@ function CowinNotification() {
               name="vaccine"
               label="Vaccine"
               id="vaccine"
-              options={[{ key: "COVISHIELD", value: "COVISHIELD", text: "COVISHIELD" },
+                options={[{ key: "ANY", value: "ANY", text: "ANY" },
+                  { key: "COVISHIELD", value: "COVISHIELD", text: "COVISHIELD" },
                     { key: "COVAXIN", value: "COVAXIN", text: "COVAXIN" }]}
               onChange={handleVaccineChange}
               value={vaccine}
+              />
+            <Form.Input
+              name="pinfilter"
+              label="Pin filter"
+              id="pinfilter"
+              onChange={handlePinfilterChange}
+              value={pinfilter}
             />
            </Form.Group>
         </Form>
