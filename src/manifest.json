@@ -1,0 +1,7 @@
+{
+    "name": "CoWIN-slot-polling-app",
+    "short_name": "cowin-slot-polling-app",
+    "display": "standalone",
+    "background_color": "#fff",
+    "description": "A simple single page app to poll CoWIN for available appointment slots"
+  }
