@@ -28,6 +28,10 @@ export default class Table extends React.Component {
         <ReactTable
           columns={columns}
           data={data}
+          sorted={[{
+            id: 'available_capacity',
+            desc: true
+          }]}
           defaultPageSize={10}
           showPagination={showPagination}
           className="-striped -highlight"

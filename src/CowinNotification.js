@@ -23,6 +23,7 @@ function CowinNotification() {
   const [minAge, setMinAge] = useState(18);
   const [type, setType] = useState('District');
   const [vaccine, setVaccine] = useState('ANY');
+  const [pollingInterval, setPollingInterval] = useState(10000);
 
   useEffect(() => {
     if (!("Notification" in window)) {
@@ -47,7 +48,7 @@ function CowinNotification() {
 
   const startPolling = () => {
     setAvailability([]);
-    resetTimer();
+    isSessionAvailable();
     setLoading(true);
   }
 
@@ -59,7 +60,7 @@ function CowinNotification() {
 
   const resetTimer = () => {
     clearInterval(sessionTimer);
-    sessionTimer = setInterval(isSessionAvailable, 10000);
+    sessionTimer = setInterval(isSessionAvailable, pollingInterval);
   };
 
   const getStates = () => {
@@ -85,6 +86,10 @@ function CowinNotification() {
         setDistricts(districtList);
       })
   }
+
+  const handlePollingIntervalChange = (e, { name, value }) => {
+    setPollingInterval(value)
+  };
 
   const handleStateChange = (e, { name, value }) => {
     setSelectedState(value)
@@ -195,11 +200,11 @@ function CowinNotification() {
   }
   
   const columns = [
-    { Header: 'pincode', accessor: 'pincode' },
-    { Header: 'address', accessor: 'address', width: 400 },
-    { Header: 'available', accessor: 'available_capacity' },
-    { Header: 'vaccine', accessor: 'vaccine' },
-    { Header: 'fee_type', accessor: 'fee_type' },
+    { Header: 'PIN', accessor: 'pincode' },
+    { Header: 'ADDRESS', accessor: 'address', width: 400 },
+    { Header: 'AVAILABLE', accessor: 'available_capacity' },
+    { Header: 'VACCINE', accessor: 'vaccine' },
+    { Header: 'FEE', accessor: 'fee_type' },
   ];
 
   return (
@@ -285,7 +290,18 @@ function CowinNotification() {
               id="pinfilter"
               onChange={handlePinfilterChange}
               value={pinfilter}
+              placeholder="411"
             />
+            <Form.Select
+              name="pollingInterval"
+              label="Polling Interval (sec)"
+              id="pollingInterval"
+                options={[{ key: 5, value: 5000, text: 5 },
+                  { key: 10, value: 10000, text: 10 },
+                    { key: 20, value: 20000, text: 20 }]}
+              onChange={handlePollingIntervalChange}
+              value={pollingInterval}
+              />
            </Form.Group>
         </Form>
         </Card.Content>
