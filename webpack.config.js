@@ -54,9 +54,7 @@ const config = {
     openPage: 'CoWIN-Slot-Polling/',
     port: 8080,
     open: true,
-    https: true,
-    hot: true,
-    historyApiFallback: true,
+    hot: true
   },
 };
 module.exports = config;

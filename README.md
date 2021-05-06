@@ -19,3 +19,6 @@ npm run start or yarn start
 
 ## How it works ?
 Once the polling starts, the app will make periodic requests to the CoWIN portal and trigger a web notification to alert you as soon as it finds an available slot.
+
+## GitHub Page
+<https://bearded-impala.github.io/CoWIN-Slot-Polling/>

@@ -35,7 +35,7 @@ function CowinNotification() {
 
   useEffect(() => {
     if (availability.length > 0) {
-      showNotification();
+      showNotification('Slot Available');
     }
   }, [availability])
 
@@ -162,11 +162,18 @@ function CowinNotification() {
     resetTimer();
   }
 
-const showNotification = () => {
-  var options = {
-    body: "Hurry Up",
-  };
-  new Notification("Slot Available", options);
+  const showNotification = (message) => {
+      Notification.requestPermission(function(result) {
+        if (result === 'granted') {
+          navigator.serviceWorker.ready.then(function(registration) {
+            registration.showNotification(message, {
+              body: 'Hurry Up',
+              vibrate: [200, 100, 200, 100, 200, 100, 200],
+              tag: 'CoWIN slot polling'
+            });
+          });
+        }
+      });
   }
   
   const columns = [
@@ -183,28 +190,17 @@ const showNotification = () => {
     <Card fluid>
       <Card.Content>
       <Form>
-      <Form.Group widths="equal">
+        <Form.Group widths="equal">
         <Form.Select
-            label="State"
-            name="selectedState"
-            id="selectedState"
-            options={states}
-            value={selectedState}
-            placeholder="Select State"
-            onChange={handleStateChange}
-            search
-          />
-          <Form.Select
-            label="District"
-            name="selectedDistrict"
-            id="selectedDistrict"
-            options={districts}
-            value={selectedDistrict}
-            placeholder="Select District"
-            onChange={handleDistrictChange}
-            search
-          />
-          <Form.Input
+              name="type"
+              label="Poll By"
+              id="type"
+              options={[{ key: "District", value: "District", text: "District" },
+                    { key: "PIN", value: "PIN", text: "PIN" }]}
+              onChange={handleTypeChange}
+              value={type}
+              />
+                        <Form.Input
             type="date"
             label="Date"
             name="date"
@@ -214,11 +210,34 @@ const showNotification = () => {
             onChange={handleDateChange}
             required
           />
+        <Form.Select
+            label="State"
+            name="selectedState"
+            id="selectedState"
+            options={states}
+            value={selectedState}
+                placeholder="Select State"
+                disabled={type === "PIN"}
+            onChange={handleStateChange}
+            search
+          />
+          <Form.Select
+            label="District"
+            name="selectedDistrict"
+            id="selectedDistrict"
+            options={districts}
+            value={selectedDistrict}
+                placeholder="Select District"
+                disabled={type === "PIN"}
+            onChange={handleDistrictChange}
+            search
+          />
           <Form.Input
              name="pincode"
              label="PIN Code(Comma Separated)"
              id="pincode"
-             value={pincode}
+                value={pincode}
+                disabled={type === "District"}
              onChange={handlePinChange}
               />
           </Form.Group>
@@ -232,15 +251,6 @@ const showNotification = () => {
               onChange={handleMinAgeChange}
               value={minAge}
             />
-          <Form.Select
-              name="type"
-              label="Poll By"
-              id="type"
-              options={[{ key: "District", value: "District", text: "District" },
-                    { key: "PIN", value: "PIN", text: "PIN" }]}
-              onChange={handleTypeChange}
-              value={type}
-                />
           <Form.Select
               name="vaccine"
               label="Vaccine"
