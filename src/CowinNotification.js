@@ -33,6 +33,12 @@ function CowinNotification() {
     }
   }, [selectedState])
 
+  useEffect(() => {
+    if (availability.length > 0) {
+      showNotification();
+    }
+  }, [availability])
+
   const startPolling = () => {
     resetTimer();
     setLoading(true);
@@ -103,29 +109,32 @@ function CowinNotification() {
 
   var data = [];
   const isSessionAvailable = () => {
+    setAvailability([]);
+    data = [];
+    var pinArray = pincode.split(',');
     if (type === "PIN") {
-      axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pincode}&date=${formatDate(selectedDate)}`)
-      .then((response) => {
-        data = [];
-        response.data.sessions.forEach(function (arrayItem) {
-          if (arrayItem.min_age_limit === minAge && arrayItem.vaccine === vaccine) {
-            data.push({
-              "pincode": arrayItem.pincode,
-              "address": arrayItem.address,
-              "fee_type": arrayItem.fee_type,
-              "available_capacity": arrayItem.available_capacity,
-              "lat": arrayItem.lat,
-              "long": arrayItem.long
-            })
-          }
-      });
-      }).finally(() => {
-        if (data.length > 0) {
-          showNotification();
-        }
-        setAvailability(data)
-        resetTimer()
-      })   
+      pinArray.forEach(function (pin) {
+        axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pin}&date=${formatDate(selectedDate)}`)
+        .then((response) => {
+          response.data.sessions.forEach(function (arrayItem) {
+            if (arrayItem.min_age_limit === minAge && arrayItem.vaccine === vaccine) {
+              data.push({
+                "pincode": arrayItem.pincode,
+                "address": arrayItem.address,
+                "fee_type": arrayItem.fee_type,
+                "available_capacity": arrayItem.available_capacity,
+                "lat": arrayItem.lat,
+                "long": arrayItem.long
+              })
+            }
+        });
+        }).finally(() => {
+          setAvailability((values) => [...values, ...data ])
+        }).catch((e) => {
+          clearInterval(sessionTimer);
+          alert(e.message);
+        })  
+      }) 
     }
     if (type === "District") {
       axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id=${selectedDistrict}&date=${formatDate(selectedDate)}`)
@@ -144,13 +153,13 @@ function CowinNotification() {
           }
       });
       }).finally(() => {
-        if (data.length > 0) {
-          showNotification();
-        }
         setAvailability(data)
-        resetTimer()
+      }).catch((e) => {
+        clearInterval(sessionTimer);
+        alert(e.message);
       })
     }
+    resetTimer();
   }
 
 const showNotification = () => {
@@ -207,7 +216,7 @@ const showNotification = () => {
           />
           <Form.Input
              name="pincode"
-             label="PIN Code"
+             label="PIN Code(Comma Separated)"
              id="pincode"
              value={pincode}
              onChange={handlePinChange}
