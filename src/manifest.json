@@ -5,4 +5,4 @@
     "display": "standalone",
     "background_color": "#fff",
     "description": "A simple single page app to poll CoWIN for available appointment slots"
-  }
+}

@@ -13,15 +13,13 @@ function CowinNotification() {
   var year = date.getFullYear();
   const [availability, setAvailability] = useState([]);
   const [states, setStates] = useState([]);
-  const [selectedState, setSelectedState] = useState('21');
+  const [selectedState, setSelectedState] = useState(21);
   const [districts, setDistricts] = useState([]);
-  const [selectedDistrict, setSelectedDistrict] = useState('363');
+  const [selectedDistrict, setSelectedDistrict] = useState(363);
   const [selectedDate, setSelectedDate] = useState(`${year}-${month}-${day}`);
   const [loading, setLoading] = useState(false);
-  const [pincode, setPincode] = useState('411017');
-  const [pinfilter, setPinfilter] = useState('');
+  const [pinfilter, setPinfilter] = useState('411');
   const [minAge, setMinAge] = useState(18);
-  const [type, setType] = useState('District');
   const [vaccine, setVaccine] = useState('ANY');
   const [pollingInterval, setPollingInterval] = useState(10000);
 
@@ -103,14 +101,6 @@ function CowinNotification() {
     setSelectedDate(value)
   };
 
-  const handlePinChange = (e, { name, value }) => {
-    setPincode(value)
-  };
-
-  const handleTypeChange = (e, { name, value }) => {
-    setType(value)
-  };
-
   const handleMinAgeChange = (e, { name, value }) => {
     setMinAge(value)
   };
@@ -135,32 +125,7 @@ function CowinNotification() {
 
   var data = [];
   const isSessionAvailable = () => {
-    setAvailability([]);
     data = [];
-    var pinArray = pincode.split(',');
-    if (type === "PIN") {
-      pinArray.forEach(function (pin) {
-        axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByPin?pincode=${pin}&date=${formatDate(selectedDate)}`)
-        .then((response) => {
-          response.data.sessions.forEach(function (arrayItem) {
-            if (arrayItem.min_age_limit === minAge && checkVaccine(arrayItem.vaccine) && arrayItem.pincode.toString().startsWith(pinfilter)) {
-              data.push({
-                "pincode": arrayItem.pincode,
-                "address": arrayItem.address,
-                "fee_type": arrayItem.fee_type,
-                "available_capacity": arrayItem.available_capacity,
-                "vaccine": arrayItem.vaccine
-              })
-            }
-        });
-        }).finally(() => {
-          setAvailability((values) => [...values, ...data ])
-        }).catch((e) => {
-          clearInterval(sessionTimer);
-        })  
-      }) 
-    }
-    if (type === "District") {
       axios.get(`https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/findByDistrict?district_id=${selectedDistrict}&date=${formatDate(selectedDate)}`)
       .then((response) => {
         data = [];
@@ -180,7 +145,6 @@ function CowinNotification() {
       }).catch((e) => {
         clearInterval(sessionTimer);
       })
-    }
     resetTimer();
   }
 
@@ -214,15 +178,6 @@ function CowinNotification() {
       <Card.Content>
       <Form>
         <Form.Group widths="equal">
-        <Form.Select
-              name="type"
-              label="Poll By"
-              id="type"
-              options={[{ key: "District", value: "District", text: "District" },
-                    { key: "PIN", value: "PIN", text: "PIN" }]}
-              onChange={handleTypeChange}
-              value={type}
-              />
          <Form.Input
             type="date"
             label="Date"
@@ -240,7 +195,6 @@ function CowinNotification() {
             options={states}
             value={selectedState}
             placeholder="Select State"
-            disabled={type === "PIN"}
             onChange={handleStateChange}
             search
           />
@@ -251,18 +205,17 @@ function CowinNotification() {
             options={districts}
             value={selectedDistrict}
                 placeholder="Select District"
-                disabled={type === "PIN"}
             onChange={handleDistrictChange}
             search
-          />
+            />
           <Form.Input
-             name="pincode"
-             label="PIN Code(Comma Separated)"
-             id="pincode"
-                value={pincode}
-                disabled={type === "District"}
-             onChange={handlePinChange}
-              />
+              name="pinfilter"
+              label="Pin Code Match"
+              id="pinfilter"
+              onChange={handlePinfilterChange}
+              value={pinfilter}
+              placeholder="411"
+            />
           </Form.Group>
           <Form.Group widths="equal">
             <Form.Select
@@ -284,14 +237,6 @@ function CowinNotification() {
               onChange={handleVaccineChange}
               value={vaccine}
               />
-            <Form.Input
-              name="pinfilter"
-              label="Pin filter"
-              id="pinfilter"
-              onChange={handlePinfilterChange}
-              value={pinfilter}
-              placeholder="411"
-            />
             <Form.Select
               name="pollingInterval"
               label="Polling Interval (sec)"
