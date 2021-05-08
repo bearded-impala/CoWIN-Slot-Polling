@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Button, Card, Form, Header } from 'semantic-ui-react';
+import { Button, Card, Container, Form, Grid, Header, Icon, List, Segment } from 'semantic-ui-react';
 import Table from './components/Table';
 import { formatDate } from './utils/util';
 let sessionTimer;
@@ -172,9 +172,16 @@ function CowinNotification() {
   ];
 
   return (
-<>
-  <Header block attached="top" size="huge">Co-WIN Slot Polling</Header>
-    <Card fluid>
+    <>
+      <Header
+        attached
+        block
+        as="h1"
+        content="Co-WIN Slot Polling"
+        size="huge"
+        subheader="Poll CoWIN for available appointment slots to get an alert as soon as a slot is available that meets your criteria"
+      />
+      <Card fluid>
       <Card.Content>
       <Form>
         <Form.Group widths="equal">
@@ -210,7 +217,7 @@ function CowinNotification() {
             />
           <Form.Input
               name="pinfilter"
-              label="Pin Code Match"
+              label="Match Pincode"
               id="pinfilter"
               onChange={handlePinfilterChange}
               value={pinfilter}
@@ -268,9 +275,31 @@ function CowinNotification() {
             fluid
           />
                 </div>
-            </Card.Content>
-            </Card>
+        </Card.Content>
+        </Card>
           <Table columns={columns} data={availability} />
+      <Segment vertical style={{ padding: '3em 0em' }}>
+        <Container>
+          <Grid divided stackable>
+            <Grid.Row>
+              <Grid.Column width={3}>
+                <Header as="h4" content="Siddhesh More" />
+              </Grid.Column>
+              <Grid.Column width={8}/>
+              <Grid.Column width={4}>
+                <List>
+                  <List.Item>beardedimpala@gmail.com</List.Item>
+                </List>
+              </Grid.Column>
+              <Grid.Column width={1}>
+              <List link>
+                <List.Item target="_blank" as="a" href="https://www.linkedin.com/in/sid-more/"><Icon name="linkedin"/></List.Item>
+              </List>
+              </Grid.Column>
+            </Grid.Row>
+          </Grid>
+        </Container>
+      </Segment>
 </>
   );
 }
