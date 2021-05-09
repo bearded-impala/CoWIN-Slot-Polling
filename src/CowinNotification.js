@@ -234,7 +234,6 @@ function CowinNotification() {
             value={selectedDate}
             placeholder="Select Date"
             onChange={handleDateChange}
-            required
           />
         <Form.Select
             label="State"
