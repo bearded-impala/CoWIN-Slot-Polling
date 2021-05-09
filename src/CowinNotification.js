@@ -170,11 +170,11 @@ function CowinNotification() {
               "center_id": arrayItem.center_id,
               "pincode": arrayItem.pincode,
               "address": arrayItem.address,
-              "district_id": arrayItem.district_id,
+              "district_id": arrayItem.block_name,
               "fee_type": arrayItem.fee_type,
               "available_capacity": arrayItem.available_capacity,
               "vaccine": arrayItem.vaccine,
-              "time": new Date().toISOString()
+              "time": new Date().toLocaleString('en-GB')
             })
           }
       });
@@ -205,11 +205,11 @@ function CowinNotification() {
     { Header: 'CENTER', accessor: 'center_id' },
     { Header: 'PIN', accessor: 'pincode' },
     { Header: 'ADDRESS', accessor: 'address', width: 300 },
-    { Header: 'DISTRICT', accessor: 'district_id' },
+    { Header: 'DISTRICT', accessor: 'block_name' },
     { Header: 'AVAILABLE', accessor: 'available_capacity' },
     { Header: 'VACCINE', accessor: 'vaccine' },
     { Header: 'FEE', accessor: 'fee_type' },
-    { Header: 'TIME', accessor: 'time' },
+    { Header: 'TIME', accessor: 'time', width: 200 },
   ];
 
   return (
