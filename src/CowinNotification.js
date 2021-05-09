@@ -52,7 +52,7 @@ function CowinNotification() {
     const unique = [];
     const duplicates = [...history, ...availability];
     duplicates.forEach(elem => {
-      if (!flag[elem.center_id]) {
+      if (!flag[elem.center_id] && elem.available_capacity > 49) {
         flag[elem.center_id] = true;
         unique.push(elem);
       }
