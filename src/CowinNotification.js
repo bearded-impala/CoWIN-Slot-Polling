@@ -12,15 +12,17 @@ function CowinNotification() {
   var month = ("0" + (date.getMonth() + 1)).slice(-2);
   var year = date.getFullYear();
   const [availability, setAvailability] = useState([]);
+  const [history, setHistory] = useState([]);
   const [states, setStates] = useState([]);
   const [selectedState, setSelectedState] = useState(21);
   const [districts, setDistricts] = useState([]);
   const [selectedDistrict, setSelectedDistrict] = useState(363);
   const [selectedDate, setSelectedDate] = useState(`${year}-${month}-${day}`);
   const [loading, setLoading] = useState(false);
-  const [pinfilter, setPinfilter] = useState('411');
+  const [pinfilter, setPinfilter] = useState('');
   const [minAge, setMinAge] = useState(18);
   const [vaccine, setVaccine] = useState('ANY');
+  const [feeType, setFeeType] = useState('ANY');
   const [pollingInterval, setPollingInterval] = useState(10000);
 
   useEffect(() => {
@@ -41,8 +43,27 @@ function CowinNotification() {
   useEffect(() => {
     if (availability.length > 0) {
       showNotification('Slot Available');
+      persistHistory();
     }
   }, [availability])
+
+  const persistHistory = () => {
+    const flag = {};
+    const unique = [];
+    const duplicates = [...history, ...availability];
+    duplicates.forEach(elem => {
+      if (!flag[elem.center_id]) {
+        flag[elem.center_id] = true;
+        unique.push(elem);
+      }
+    })
+    setHistory(unique);
+  };
+
+  const clearHistory = () => {
+    setAvailability([]);
+    setHistory([]);
+  }
 
   const startPolling = () => {
     setAvailability([]);
@@ -109,6 +130,10 @@ function CowinNotification() {
     setVaccine(value);
   }
 
+  const handleFeeTypeChange = (e, { name, value }) => {
+    setFeeType(value);
+  }
+
   const handlePinfilterChange = (e, { name, value }) => {
     setPinfilter(value);
   }
@@ -123,6 +148,16 @@ function CowinNotification() {
     return false;
   }
 
+  const checkFeeType = (fee) => {
+    if (fee === feeType) {
+      return true;
+    }
+    if (feeType === 'ANY') {
+      return true;
+    }
+    return false;
+  }
+
   var data = [];
   const isSessionAvailable = () => {
     data = [];
@@ -130,13 +165,16 @@ function CowinNotification() {
       .then((response) => {
         data = [];
         response.data.sessions.forEach(function (arrayItem) {
-          if (arrayItem.min_age_limit === minAge && checkVaccine(arrayItem.vaccine) && arrayItem.pincode.toString().startsWith(pinfilter)) {
+          if (arrayItem.min_age_limit === minAge && checkVaccine(arrayItem.vaccine) && checkFeeType(arrayItem.fee_type) && arrayItem.pincode.toString().startsWith(pinfilter)) {
             data.push({
+              "center_id": arrayItem.center_id,
               "pincode": arrayItem.pincode,
               "address": arrayItem.address,
+              "district_id": arrayItem.district_id,
               "fee_type": arrayItem.fee_type,
               "available_capacity": arrayItem.available_capacity,
-              "vaccine": arrayItem.vaccine
+              "vaccine": arrayItem.vaccine,
+              "time": new Date().toISOString()
             })
           }
       });
@@ -164,11 +202,14 @@ function CowinNotification() {
   }
   
   const columns = [
+    { Header: 'CENTER', accessor: 'center_id' },
     { Header: 'PIN', accessor: 'pincode' },
-    { Header: 'ADDRESS', accessor: 'address', width: 400 },
+    { Header: 'ADDRESS', accessor: 'address', width: 300 },
+    { Header: 'DISTRICT', accessor: 'district_id' },
     { Header: 'AVAILABLE', accessor: 'available_capacity' },
     { Header: 'VACCINE', accessor: 'vaccine' },
     { Header: 'FEE', accessor: 'fee_type' },
+    { Header: 'TIME', accessor: 'time' },
   ];
 
   return (
@@ -244,6 +285,16 @@ function CowinNotification() {
               onChange={handleVaccineChange}
               value={vaccine}
               />
+              <Form.Select
+              name="feeType"
+              label="Fees"
+              id="feeType"
+                options={[{ key: "ANY", value: "ANY", text: "ANY" },
+                  { key: "FREE", value: "Free", text: "FREE" },
+                    { key: "PAID", value: "Paid", text: "PAID" }]}
+              onChange={handleFeeTypeChange}
+              value={feeType}
+              />
             <Form.Select
               name="pollingInterval"
               label="Polling Interval (sec)"
@@ -258,7 +309,7 @@ function CowinNotification() {
         </Form>
         </Card.Content>
             <Card.Content extra>
-        <div className="ui two buttons">
+        <div className="ui three buttons">
           <Button
             content="Start"
             onClick={startPolling}
@@ -271,13 +322,48 @@ function CowinNotification() {
             content="Stop"
             onClick={stopPolling}
             disabled={!sessionTimer}
-            color="red"
+            color="gray"
             fluid
+            />
+            <Button
+            content="Clear"
+            onClick={clearHistory}
+            disabled={history.length < 1 && availability.length < 1}
+            color="red"
           />
                 </div>
         </Card.Content>
-        </Card>
-          <Table columns={columns} data={availability} />
+      </Card>
+      <Header
+        attached
+        block
+        as="h2"
+        content="Available Slots"
+        size="huge"
+      />
+          <Table
+            columns={columns}
+            data={availability}
+            sorted={[{
+              id: 'available_capacity',
+              desc: true
+            }]}
+        filterable />
+      <Header
+        attached
+        block
+        as="h2"
+        content="History"
+        size="huge"
+      />
+        <Table
+            columns={columns}
+            data={history}
+            sorted={[{
+              id: 'time',
+              desc: true
+            }]}
+            filterable />
       <Segment vertical style={{ padding: '3em 0em' }}>
         <Container>
           <Grid divided stackable>

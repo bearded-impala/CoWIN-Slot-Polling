@@ -23,15 +23,12 @@ export default class Table extends React.Component {
   };
 
   render() {
-    const { data, columns, showPagination, filterable } = this.props;
+    const { data, columns, showPagination, filterable, sorted } = this.props;
     return (
         <ReactTable
           columns={columns}
           data={data}
-          sorted={[{
-            id: 'available_capacity',
-            desc: true
-          }]}
+          sorted={sorted}
           defaultPageSize={10}
           showPagination={showPagination}
           className="-striped -highlight"
