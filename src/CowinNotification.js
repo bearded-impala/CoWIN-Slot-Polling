@@ -135,7 +135,9 @@ function CowinNotification() {
   }
 
   const handlePinfilterChange = (e, { name, value }) => {
-    setPinfilter(value);
+    if (value < 1000000) {
+      setPinfilter(value);
+    }
   }
 
   const checkVaccine = (availableVaccine) => {
@@ -263,6 +265,9 @@ function CowinNotification() {
             onChange={handlePinfilterChange}
             value={pinfilter}
             placeholder="411"
+            type='number'
+            min="1"
+            max="999999"
         />}
           content='Enter part of pincode or the entire pincode (411 or 41101 or 411011)'
           position='top center'
