@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Button, Card, Container, Form, Grid, Header, Icon, List, Segment } from 'semantic-ui-react';
+import { Button, Card, Container, Form, Grid, Header, Icon, List, Popup, Segment } from 'semantic-ui-react';
 import Table from './components/Table';
 import { formatDate } from './utils/util';
 let sessionTimer;
@@ -220,7 +220,7 @@ function CowinNotification() {
         as="h1"
         content="Co-WIN Slot Polling"
         size="huge"
-        subheader="Poll CoWIN for available appointment slots to get an alert as soon as a slot is available that meets your criteria"
+        subheader="Poll CoWIN for available appointment slots to get an alert as soon as a slot is available that meets your criteria."
       />
       <Card fluid>
       <Card.Content>
@@ -254,15 +254,19 @@ function CowinNotification() {
                 placeholder="Select District"
             onChange={handleDistrictChange}
             search
-            />
-          <Form.Input
-              name="pinfilter"
-              label="Match Pincode"
-              id="pinfilter"
-              onChange={handlePinfilterChange}
-              value={pinfilter}
-              placeholder="411"
-            />
+              />
+          <Popup
+          trigger={<Form.Input
+            name="pinfilter"
+            label="Match Pincode"
+            id="pinfilter"
+            onChange={handlePinfilterChange}
+            value={pinfilter}
+            placeholder="411"
+        />}
+          content='Enter part of pincode or the entire pincode (411 or 41101 or 411011)'
+          position='top center'
+        />
           </Form.Group>
           <Form.Group widths="equal">
             <Form.Select
@@ -296,7 +300,7 @@ function CowinNotification() {
               />
             <Form.Select
               name="pollingInterval"
-              label="Polling Interval (sec)"
+              label="Polling Interval (seconds)"
               id="pollingInterval"
                 options={[{ key: 5, value: 5000, text: 5 },
                   { key: 10, value: 10000, text: 10 },
@@ -334,12 +338,13 @@ function CowinNotification() {
         </Card.Content>
       </Card>
       <Header
-        attached
-        block
-        as="h2"
+            attached
+            block
+            as="h2"
         content="Available Slots"
-        size="huge"
-      />
+        subheader="If there are no available slots for the above criteria, this table will be empty."
+            size="huge"
+          />
           <Table
             columns={columns}
             data={availability}
@@ -353,6 +358,7 @@ function CowinNotification() {
         block
         as="h2"
         content="History"
+        subheader="This table only records data when a new slot has more than 50 available capacity. This helps you to find out the exact time when a particular center opens up for booking."
         size="huge"
       />
         <Table
