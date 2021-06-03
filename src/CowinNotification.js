@@ -45,7 +45,7 @@ function CowinNotification() {
       showNotification('Slot Available');
       persistHistory();
     }
-  }, [availability])
+  }, [history])
 
   const persistHistory = () => {
     const flag = {};
@@ -346,8 +346,7 @@ function CowinNotification() {
             attached
             block
             as="h2"
-        content="Available Slots"
-        subheader="If there are no available slots for the above criteria, this table will be empty."
+            content="Available Slots"
             size="huge"
           />
           <Table
